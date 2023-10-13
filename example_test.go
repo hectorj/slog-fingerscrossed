@@ -6,14 +6,34 @@ import (
 	"os"
 )
 
-func ExampleNewHandler() {
-	baseHandler := slog.NewJSONHandler(os.Stderr, nil)
+func ExampleHandler() {
+	// 2 scenarios: with and without error logs
 
-	fingerscrossedHandler := fingerscrossed.NewHandler(baseHandler)
+	// Scenario 1: without error
+	{
+		baseHandler := slog.NewJSONHandler(os.Stderr, nil)
+		fingerscrossedHandler := fingerscrossed.NewHandler(baseHandler)
 
-	logger := slog.New(fingerscrossedHandler)
+		logger := slog.New(fingerscrossedHandler)
 
-	doThingsWithLogger(logger)
+		logger.Debug("debug msg") // <-- no log output
+		logger.Info("info msg")   // <-- no log output
+		logger.Warn("warn msg")   // <-- no log output
+
+		_ = fingerscrossedHandler.FlushLogs(slog.LevelInfo) // <-- outputs "info msg" and "warn msg" logs, but not "debug msg"
+	}
+	// Scenario 2: with error
+	{
+		baseHandler := slog.NewJSONHandler(os.Stderr, nil)
+		fingerscrossedHandler := fingerscrossed.NewHandler(baseHandler)
+
+		logger := slog.New(fingerscrossedHandler)
+
+		logger.Debug("debug msg") // <-- no log output
+		logger.Info("info msg")   // <-- no log output
+		logger.Error("error msg") // <-- outputs "debug msg", "info msg", and "error msg" logs
+		logger.Warn("warn msg")   // <-- outputs "warn msg" log
+
+		_ = fingerscrossedHandler.FlushLogs(slog.LevelInfo) // <-- everything is already flushed, nothing happens
+	}
 }
-
-func doThingsWithLogger(_ *slog.Logger) {}
