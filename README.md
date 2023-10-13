@@ -1,4 +1,4 @@
-# slog-fingerscrossed
+# slog-fingerscrossed 🤞
 
 Golang [slog](https://golang.google.cn/pkg/log/slog/).Handler with fingers-crossed strategy
 
